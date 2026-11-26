@@ -217,6 +217,23 @@ internal sealed class CircuitStateController<T> : IDisposable
         return ExecuteScheduledTaskAsync(task, context);
     }
 
+    public void OnIgnoredOutcome()
+    {
+        EnsureNotDisposed();
+
+        lock (_lock)
+        {
+            // HalfOpen - the test call is inconclusive, go back to Open and permit the next call to test the circuit.
+            // Closed, Open, Isolated - do nothing, the outcome is not recorded.
+            if (_circuitState == CircuitState.HalfOpen)
+            {
+                _circuitState = CircuitState.Open;
+                _blockedUntil = _timeProvider.GetUtcNow();
+                _halfOpenAttempts--;
+            }
+        }
+    }
+
     public Task OnHandledOutcomeAsync(Outcome<T> outcome, ResilienceContext context)
     {
         EnsureNotDisposed();

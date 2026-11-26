@@ -88,6 +88,15 @@ public class CircuitBreakerStrategyOptions<TResult> : ResilienceStrategyOptions
     public Func<CircuitBreakerPredicateArguments<TResult>, ValueTask<bool>> ShouldHandle { get; set; } = DefaultPredicates<CircuitBreakerPredicateArguments<TResult>, TResult>.HandleOutcome;
 
     /// <summary>
+    /// Gets or sets a predicate that determines whether the outcome should be ignored by the circuit breaker.
+    /// Ignored outcomes are counted neither as successes nor as failures.
+    /// </summary>
+    /// <value>
+    /// The default value is <see langword="null"/>, meaning that every outcome is recorded.
+    /// </value>
+    public Func<CircuitBreakerPredicateArguments<TResult>, ValueTask<bool>>? ShouldIgnore { get; set; }
+
+    /// <summary>
     /// Gets or sets the event that is raised when the circuit resets to a <see cref="CircuitState.Closed"/> state.
     /// </summary>
     /// <remarks>
